@@ -1,0 +1,7 @@
+GET https://westus.api.cognitive.microsoft.com/text/analytics/v2.0/operations/R_E_D_A_C_T_E_D HTTP/1.1
+User-Agent: Fiddler
+Ocp-Apim-Subscription-Key: R_E_D_A_C_T_E_D
+Content-Type: application/json
+Accept: application/json
+Host: westus.api.cognitive.microsoft.com
+

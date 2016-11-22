@@ -1,0 +1,9 @@
+HTTP/1.1 202 Accepted
+Transfer-Encoding: chunked
+Location: https://westus.api.cognitive.microsoft.com/text/analytics/v2.0/operations/R_E_D_A_C_T_E_D
+Operation-Location: https://westus.api.cognitive.microsoft.com/text/analytics/v2.0/operations/R_E_D_A_C_T_E_D
+x-aml-ta-request-id: R_E_D_A_C_T_E_D
+X-Content-Type-Options: nosniff
+apim-request-id: R_E_D_A_C_T_E_D
+Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+Date: Sat, 19 Nov 2016 15:10:32 GMT

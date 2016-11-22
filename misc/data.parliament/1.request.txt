@@ -1,0 +1,4 @@
+GET http://lda.data.parliament.uk/epetitions.json?_properties=sponsorPrinted,description,abstract,label,status,votingByConstituency.numberOfSignatures,votingByConstituency.gssCode,votingByConstituency.location,votingByConstituency.memberPrinted&_view=basic&_pageSize=500 HTTP/1.1
+User-Agent: Fiddler
+Host: lda.data.parliament.uk
+
