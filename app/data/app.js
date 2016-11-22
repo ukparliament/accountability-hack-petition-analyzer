@@ -64,25 +64,36 @@
                     return petition._about === assignement.documentId;
                 };
 
+                var aggregateSignatures = function (petition) {
+                    petition.numberOfSignatures = petition.votingByConstituency.reduce(function (accumulator, voting) {
+                        return accumulator + voting.numberOfSignatures
+                    }, 0);
+
+                    return petition;
+                }
+
                 return petitionsFromDDP.result.items
-                    .filter(samePetition)[0];
+                    .filter(samePetition)
+                    .map(aggregateSignatures)[0];
             };
 
             return {
                 name: topic.keyPhrase,
+                topicId: topic.id,
+                score: topic.score,
                 petitions: outputFromTopicExtraction.operationProcessingResult.topicAssignments
                     .filter(sameTopic)
                     .map(getPetition)
+                    .sort(function (a, b) {
+                        return b.numberOfSignatures - a.numberOfSignatures;
+                    })
             };
         };
 
         return outputFromTopicExtraction.operationProcessingResult.topics
-            .map(crossReferenceTopicsWithPetitions);
+            .map(crossReferenceTopicsWithPetitions)
+            .sort(function (a, b) { return b.score - a.score; });
     }
 
-    function onload() {
-        console.log(getTopicList());
-    }
-
-    window.addEventListener("load", onload);
+    window.data = getTopicList();
 })();

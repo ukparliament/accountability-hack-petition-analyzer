@@ -1,0 +1,80 @@
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="description" content="">
+		<meta name="author" content="">
+		<title>Petition Analyzer</title>
+		<link href="css/bootstrap.min.css" rel="stylesheet">
+	</head>
+<body>
+    <header class="navbar" style="background-color:#205493">
+				<ul class="list-inline">
+					<li>
+						<h1>
+							<a href="index.html" style="color: #fff">{ }</a>
+						</h1>                
+					</li>
+					<li>
+						<h1 style="color: #fff">P<small style="color: #fff">ETITION</small> A<small style="color: #fff">NALYZER</small></h1>            
+					</li>
+				</ul>
+    </header>
+
+    <main class="container-fluid">
+		<h2 data-bind="text: constituency"></h2>
+		
+		<div class="row">
+			<div class="col-md-6">
+				<div class="panel panel-default">
+				  <div class="panel-heading">MP</div>
+				  <div class="panel-body">
+					<img data-bind="attr: {src: 'http://data.parliament.uk/membersdataplatform/services/images/memberphoto/'+id}" />
+					<h3 data-bind="text: mp"></h3>
+				  </div>
+				</div>
+			</div>
+			<div class="col-md-6">
+				<div class="panel panel-default">
+				  <div class="panel-heading">Constituency: <span data-bind="text: constituency"></span></div>
+				  <div class="panel-body">
+				  </div>
+				</div>
+			</div>
+		</div>
+		
+    </main>    
+
+    <footer>
+        <div class="container-fluid">
+        </div>
+    </footer>
+	
+	<script src="js/knockout-3.4.1.js"></script>
+	<script src="js/d3.min.js"></script>
+	
+	<script type="text/javascript">
+		
+		(function(){
+			var gssCode=window.location.search.split('=')[1];
+
+			d3.json("http://lda.data.parliament.uk/members.json?constituency.gssCode="+gssCode+"&_properties=fullName,constituency.label&_view=basic",function(error,data){
+				var vm=function(){
+					var self=this;
+					
+					self.mp=data.result.items[0].fullName._value;
+					
+					var idArray=data.result.items[0]._about.split('/');
+					self.id=idArray[idArray.length-1];
+					self.constituency=data.result.items[0].constituency.label._value;
+				};
+				
+				ko.applyBindings(vm);
+			});
+			
+		})();
+	</script>
+
+</body>
+</html>

@@ -1,13 +1,69 @@
-﻿<!DOCTYPE html>
-
-<html lang="en">
+﻿<html>
 <head>
-    <meta charset="utf-8" />
-    <title></title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Petition Analyzer</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-    <script src="petitionsFromDDP.js"></script>
-    <script src="outputFromTopicExtraction.js"></script>
-    <script src="app.js"></script>
+    <header class="navbar" style="background-color:#205493">
+        <ul class="list-inline">
+            <li>
+                <h1>
+                    <a href="index.html" style="color: #fff">{ }</a>
+                </h1>
+            </li>
+            <li>
+                <h1 style="color: #fff">P<small style="color: #fff">ETITION</small> A<small style="color: #fff">NALYZER</small></h1>
+            </li>
+        </ul>
+    </header>
+
+    <main class="container-fluid">
+        <div class="row">
+            <div class="col-md-8 col-md-offset-2 input-group-lg">
+                <input type="text" class="form-control" placeholder="Type to search" data-bind="textInput: searchTerm">
+            </div>
+        </div>
+
+        <div class="panel panel-default">
+            <ul class="list-group" data-bind="foreach: filteredTopics">
+                <li class="list-group-item"><button class="btn btn-link" data-bind="text: name, click: function(){ window.location.href='topic.html?id='+topicId; }"></button></li>
+            </ul>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container-fluid">
+        </div>
+    </footer>
+
+    <script src="js/knockout-3.4.1.js"></script>
+    <script src="data/petitionsFromDDP.js"></script>
+    <script src="data/outputFromTopicExtraction.js"></script>
+    <script src="data/app.js"></script>
+
+    <script type="text/javascript">
+        (function () {
+            var vm = function () {
+                var self = this;
+
+                self.searchTerm = ko.observable();
+
+                self.filteredTopics = ko.pureComputed(function () {
+                    var term = (self.searchTerm() || "").toUpperCase();
+
+                    return ko.utils.arrayFilter(window.data, function (item) {
+                        return item.name.toUpperCase().indexOf(term) >= 0;
+                    });
+                }).extend({ rateLimit: 100 });
+            };
+
+            ko.applyBindings(vm);
+        })();
+    </script>
 </body>
 </html>

@@ -1,0 +1,199 @@
+﻿<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Petition Analyzer</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <header class="navbar" style="background-color:#205493">
+        <ul class="list-inline">
+            <li>
+                <h1>
+                    <a href="index.html" style="color: #fff">{ }</a>
+                </h1>
+            </li>
+            <li>
+                <h1 style="color: #fff">P<small style="color: #fff">ETITION</small> A<small style="color: #fff">NALYZER</small></h1>
+            </li>
+        </ul>
+    </header>
+
+    <main class="container-fluid">
+        <h2 data-bind="text: topicName"></h2>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="panel panel-default">
+                    <div class="panel-heading">List of petitions related to "<span data-bind="text: topicName"></span>"</div>
+                    <div class="panel-body">
+                        <ul class="list-group" data-bind="foreach: petitions">
+                            <li class="list-group-item">
+                                <span data-bind="text: label._value"></span> (<span data-bind="text: numberOfSignatures"></span>)
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="panel panel-default">
+                    <div class="panel-heading">Geographical distribution of interest in "<span data-bind="text: topicName"></span>"</div>
+                    <div class="westminster panel-body">
+                        <svg style="width:100%">
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer>
+        <div class="container-fluid">
+        </div>
+    </footer>
+
+    <script src="js/knockout-3.4.1.js"></script>
+    <script src="js/d3.min.js"></script>
+    <script src="js/topojson.v1.min.js"></script>
+    <script src="data/petitionsFromDDP.js"></script>
+    <script src="data/outputFromTopicExtraction.js"></script>
+    <script src="data/app.js"></script>
+    <script src="data/constituencies.js"></script>
+
+    <script type="text/javascript">
+        (function () {
+            var topicId = window.location.search.split('=')[1];
+
+            var topic = data.filter(function (topic) {
+                return topic.topicId === topicId;
+            })[0];
+
+
+            /*
+                    topic.voting = topic.petitions.reduce(function(accumulator, petition) {
+                        petition.votingByConstituency.forEach(function(voting) {
+                            accumulator[voting.gssCode] = accumulator[voting.gssCode] || 0 + voting.numberOfSignatures;
+                        });
+
+                        return accumulator;
+                    }, {});
+
+                    console.log(topic);
+            */
+            /*
+                    topic.voting = topic.petitions.reduce(function(accumulator, petition) {
+                        petition.votingByConstituency.forEach(function(voting) {
+                            currentConstituency = accumulator.filter(function(constituency) { return constituency.id === voting.gssCode; })[0];
+
+                            if(!currentConstituency) {
+                                currentConstituency = {id: voting.gssCode, value: 0};
+                                accumulator.push(currentConstituency);
+                            }
+
+                            currentConstituency.value += voting.numberOfSignatures;
+                        });
+
+                        return accumulator;
+                    }, []);
+            */
+
+
+
+
+
+
+            var voting = [];
+            var petitions = [];
+            for (var i = 0; i < topic.petitions.length; i++) {
+                petitions.push(topic.petitions[i]);
+                for (var j = 0; j < topic.petitions[i].votingByConstituency.length; j++) {
+                    if (i == 0)
+                        voting.push({
+                            id: topic.petitions[i].votingByConstituency[j].gssCode,
+                            value: topic.petitions[i].votingByConstituency[j].numberOfSignatures
+                        });
+                    else {
+                        var isFound = false;
+                        for (var k = 0; k < voting.length; k++) {
+                            if (voting[k].id == topic.petitions[i].votingByConstituency[j].gssCode) {
+                                voting[k].value += topic.petitions[i].votingByConstituency[j].numberOfSignatures;
+                                isFound = true;
+                                break;
+                            }
+                        }
+                        if (isFound == false)
+                            voting.push({
+                                id: topic.petitions[i].votingByConstituency[j].gssCode,
+                                value: topic.petitions[i].votingByConstituency[j].numberOfSignatures
+                            });
+                    }
+                }
+            }
+
+            var map = d3.select("svg");
+
+            var width = map.node().getBoundingClientRect().width;
+            var height = width;
+
+            map.attr("width", width).attr("height", height);
+
+            var projection = d3.geo.albers()
+                .center([0, 55.4])
+                .rotate([4.4, 0])
+                .parallels([50, 60])
+                .scale(height * 5)
+                .translate([width / 2, height / 2]);
+
+            var path = d3.geo.path().projection(projection);
+
+            var features = topojson.feature(constituencies, constituencies.objects.westminster).features;
+
+            map
+                .selectAll(".constituency")
+                .data(features)
+                .enter()
+                .append("path")
+                .attr("class", function (d) {
+                    return "constituency constituency-" + d.properties.CODE;
+                })
+                .attr("d", path)
+                .style("fill-opacity", 1)
+                .style("fill", "#fff1d2")
+                .on("click", function (d) {
+                    window.location.href = "constituency.html?id=" + d.properties.CODE;
+                })
+                .append("title")
+                .text(function (d) {
+                    return d.properties.NAME;
+                });
+
+            var maxVote = d3.max(voting, function (d) { return d.value; });
+
+            var colours = d3.scale
+                .linear()
+                .domain([0, maxVote])
+                .range([d3.rgb("#fff1d2"), d3.rgb('#fdb81e')]);
+
+            for (var i = 0; i < voting.length; i++)
+                d3.select(".constituency-" + voting[i].id).transition()
+                    .duration(1500)
+                    .style("fill-opacity", 1)
+                    .style("fill", colours(voting[i].value))
+                    .delay(i * 2);
+
+            var vm = function () {
+                var self = this;
+
+                self.petitions = petitions;
+                self.topicName = topic.name;
+            };
+
+            ko.applyBindings(vm);
+        })();
+    </script>
+</body>
+</html>
