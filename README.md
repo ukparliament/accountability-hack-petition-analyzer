@@ -1,1 +1,1 @@
-# accountability-hackathon-petition-analyzer
+# accountability-hack-petition-analyzer
